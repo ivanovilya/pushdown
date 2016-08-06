@@ -212,7 +212,7 @@ class MaxPushdownGenerator(object):
             return '0'
         if z == self.m - 1 and q != self.n - 1:
             return str(self.m) + repeat(self.k - 1, '1')
-        return repeat(k, str(z + 1))
+        return repeat(self.k, str(z + 1))
     
     def theoryEstimate(self):
         k = self.k
@@ -229,3 +229,83 @@ def repeat(ntimes, symbol):
     for i in range(ntimes):
         result += symbol
     return result
+    
+    
+
+class MaxRocaGenerator(object):
+    def __init__(self, n, s, k, fileName):
+        self.n = n
+        self.m = m = 1
+        self.k = k
+        self.s = s
+        self.h = ((k-1)*(n-s+1) + 2) % s
+        with open(fileName, 'w') as fout:
+            fout.write(str(n))
+            fout.write('\t')
+            fout.write(str(m))
+            fout.write('\t')
+            fout.write(str(k))
+            fout.write('\n')
+            fout.write(str(self.h))
+            fout.write('\t\n')
+            
+            fout.write('phi\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.phi(q,z)) + '\n')
+ 
+            fout.write('psi\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.psi(q,z)) + '\n')
+            
+            fout.write('eta\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.eta(q,z)) + '\n')
+    
+    def phi(self, q, z):
+        if z == 0:
+            if q == self.h:
+                return self.s
+            else:
+                return self.s + (self.h - (q - self.s) - 1) % self.s / (self.k - 1)
+            
+        else:
+            if q < self.s:
+                return (q + 1) % self.s
+            else:
+                if q + 1 == self.n:
+                    return 0
+                else:
+                    return q + 1
+        return q
+    
+    def psi(self, q, z):
+        if q == self.h and z == 0:
+            return 1
+        return 0
+    
+    def eta(self, q, z):
+        if q >= self.s:
+            return repeat(self.k, str(1))
+        else:
+            if z == 0:
+                if q == self.h:
+                    return repeat(self.k, str(1))
+                else:
+                    return repeat(self.k - 1 - ((self.h - (q - self.s) - 1) % self.s) % (self.k - 1), str(1))    
+            else:
+                return '0'
+        print ('eta error', 'q = ', q, 'z = ', z, 'h = ', self.h)
+        return '0'
+    
+    def theoryEstimate(self):
+        k = self.k
+        s = self.s
+        n = self.n
+        summ = 0
+        for i in range(s-1):
+            summ += i/(k-1)
+        
+        return  s*k*(n -s +1) + s - s*(s-1)/2 - summ

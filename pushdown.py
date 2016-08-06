@@ -38,7 +38,9 @@ class Pushdown(object):
             result[int(split_line[0])][int(split_line[1])] = split_line[2] 
         return result
     
-    def calculatePeriod(self, verbose=0):
+    def calculatePeriod(self, verbose=0, upper_bound=1000000000):
+        if verbose > 0:
+            print(0, self.state, self.stack)
         result = 1
         while(self.step() != 1):
             result = 1
@@ -46,6 +48,9 @@ class Pushdown(object):
             print(result, self.state, self.stack)
         while(self.step() != 1):
             result += 1
+            if result > upper_bound:
+                print("endless loop")
+                return result
             if verbose > 0:
                  print(result, self.state, self.stack)
             
