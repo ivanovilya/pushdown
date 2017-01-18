@@ -309,3 +309,86 @@ class MaxRocaGenerator(object):
             summ += i/(k-1)
         
         return  s*k*(n -s +1) + s - s*(s-1)/2 - summ
+
+import math
+class MaxRocaNoCyclesGenerator(object):
+    def __init__(self, n, k, fileName):
+        self.n = n
+        self.m = m = 1
+        self.k = k
+        self.w = int(math.ceil(float(n-1)/k) - 1)
+        self.s = int(n - self.w)
+        #print(self.w*(self.k-1) +1, self.s-1)
+        with open(fileName, 'w') as fout:
+            fout.write(str(n))
+            fout.write('\t')
+            fout.write(str(m))
+            fout.write('\t')
+            fout.write(str(k))
+            fout.write('\n')
+            fout.write(str(self.w + 1))
+            fout.write('\t\n')
+            
+            fout.write('phi\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.phi(q,z)) + '\n')
+ 
+            fout.write('psi\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.psi(q,z)) + '\n')
+            
+            fout.write('eta\n')
+            for q in range(n):
+                for z in range(m+1):
+                    fout.write(str(q) + '\t' + str(z) + '\t' + str(self.eta(q,z)) + '\n')
+    
+    def phi(self, q, z):
+        if z == 0:
+            if q == self.w + 1:
+                return 0
+            else:
+                return int((self.n - 1 - q) / (self.k - 1))
+        else:
+            return q+1            
+        return q
+    
+    def psi(self, q, z):
+        if q == self.w + 1 and z == 0:
+            return 1
+        return 0
+    
+    def eta(self, q, z):
+        if q < self.w - 1:
+            return repeat(self.k, str(1))
+        if q == self.w - 1:
+            result = (self.n-1) % self.k
+            if result == 0:
+                return repeat(self.k, str(1))
+            else:
+                return repeat(result, str(1))
+        if q >= self.w:      
+            if z == 0:               
+                if (q == self.w + 1):
+                    return repeat(self.k, str(1))
+                
+                offset = self.s - self.w*(self.k-1) - 2
+                if  q > self.w + 1 and q <= self.w + 1 + offset and  0 < offset:             
+                    return repeat(q - self.w - 1, '1')
+                else:                   
+                   return repeat(self.k - 1 -  (self.n -1 - q) % (self.k - 1), str(1))
+            else:
+                return '0'
+        print ('eta error', 'q = ', q, 'z = ', z, 'h = ', self.h)
+        return '0'
+    
+    def theoryEstimate(self):
+        k = self.k
+        s = self.s
+        n = self.n
+        summ = 0
+        for i in range(s-2):
+            summ += i/(k-1)
+        
+        return  s*(s-1)/2 + (s-1)*(n-s+1) - summ
